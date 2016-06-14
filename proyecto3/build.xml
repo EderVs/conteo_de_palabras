@@ -1,4 +1,4 @@
-<project name="proyecto3">
+<project name="proyecto3" default="proyecto3.jar" basedir=".">
 	<property name="build.dir" value="build" />
 	<property name="src.dir"   value="src" />
 	<property name="lib.dir"   value="lib" />
