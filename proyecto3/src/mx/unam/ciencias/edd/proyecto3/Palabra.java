@@ -39,6 +39,6 @@ public class Palabra implements Comparable<Palabra> {
 	}
 
 	@Override public String toString() {
-		return palabra + ": " + conteo;
+		return palabra;
 	}
 }

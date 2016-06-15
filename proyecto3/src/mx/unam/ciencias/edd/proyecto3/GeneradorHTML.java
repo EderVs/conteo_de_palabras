@@ -1,6 +1,8 @@
 package mx.unam.ciencias.edd.proyecto3;
 
 import mx.unam.ciencias.edd.*;
+import mx.unam.ciencias.edd.proyecto2.EstructurasDatosSVG;
+import mx.unam.ciencias.edd.proyecto2.EstructurasDeDatos;
 
 /**
   * Clase que sirve para llevar el HTML que
@@ -12,34 +14,43 @@ public class GeneradorHTML {
     private HTMLUtil htmlUtil;
     private String archivo;
     private Diccionario<String, Integer> palabras_dict;
+    private Lista<Palabra> palabras_orden;
     private ArbolRojinegro<Palabra> palabras_rn;
     private ArbolAVL<Palabra> palabras_avl;
 
     public GeneradorHTML(String archivo, Diccionario<String, Integer> palabras_dict) {
-        html = "";
-        htmlUtil = new HTMLUtil();
+        this.html = "";
+        this.htmlUtil = new HTMLUtil();
         this.archivo = archivo;
         this.palabras_dict = palabras_dict;
-        palabras_rn = new ArbolRojinegro<Palabra>();
-        palabras_avl = new ArbolAVL<Palabra>();
-        getArbolesDePalabras();
+        this.palabras_rn = new ArbolRojinegro<Palabra>();
+        this.palabras_avl = new ArbolAVL<Palabra>();
+        this.palabras_orden = new Lista<Palabra>();
+        this.getListaOrden();
+        this.getArbolesDePalabras();
+    }
+
+    private void getListaOrden() {
+        for (String llave: palabras_dict.llaves())
+            palabras_orden.agrega(new Palabra(llave, palabras_dict.get(llave)));
+        palabras_orden = Lista.mergeSort(palabras_orden).reversa();
     }
 
     private void getArbolesDePalabras() {
-        Palabra actual;
-        for (String llave: palabras_dict.llaves()) {
-            actual = new Palabra(llave, palabras_dict.get(llave));
-            palabras_rn.agrega(actual);
-            palabras_avl.agrega(actual);
+        int i = 0;
+        for (Palabra palabra: palabras_orden) {
+            if (i >= 15) {
+                break;    
+            }
+            palabras_rn.agrega(palabra);
+            palabras_avl.agrega(palabra);
+            i++;
         }  
     }
 
     private void getConteoDePalabras() {
-        Lista<Palabra> palabra_orden = new Lista<Palabra>();
-        html += htmlUtil.getOpenTag("ol");
-        for (Palabra palabra: palabras_avl)
-            palabra_orden.agregaInicio(palabra);
-        for (Palabra palabra: palabra_orden) {
+        html += htmlUtil.getOpenTag("ol"); 
+        for (Palabra palabra: palabras_orden) {
             html += htmlUtil.getOpenTag("li");
             html += palabra;
             html += htmlUtil.getCloseTag("li");
@@ -47,7 +58,16 @@ public class GeneradorHTML {
         html += htmlUtil.getCloseTag("ol");
     }
 
+    private void generarPastel() {
+        int total = 0;
+        for (Palabra palabra: palabras_rn)
+            total += palabra.getConteo();
+        
+    }
+
     private void generarBody() {
+        EstructurasDatosSVG edSVG = new EstructurasDatosSVG();
+
         html += htmlUtil.getOpenTag("body");
         html += htmlUtil.getHeader("Archivo: " + archivo);
         html += htmlUtil.getOpenTag("section");
@@ -58,10 +78,10 @@ public class GeneradorHTML {
         html += "Aquí va la grafica de pastel";
         html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getOpenTag("div");
-        html += "Aquí va el árbol rojinegro";
-        html += htmlUtil.getOpenTag("div");
+        html += edSVG.arbolBinario(palabras_rn, EstructurasDeDatos.ArbolRojinegro);
         html += htmlUtil.getCloseTag("div");
-        html += "Aquí va el árbol AVL";
+        html += htmlUtil.getOpenTag("div");
+        html += edSVG.arbolBinario(palabras_avl, EstructurasDeDatos.ArbolAVL);
         html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getCloseTag("section");
         html += htmlUtil.getCloseTag("body");
