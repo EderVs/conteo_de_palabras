@@ -1,4 +1,4 @@
-package mx.unam.ciencias.edd.proyecto2;
+package mx.unam.ciencias.edd.proyecto3;
 
 /**
  * Enum para el manejo facil del tipo de Estructura de datos.
