@@ -5,7 +5,43 @@ import mx.unam.ciencias.edd.*;
 /**
  * Clase para dibujar Estructuras de Datos en SVG.
  */
-public class EstructurasDatosSVG<O extends Comparable<O>> {
+public class EstructurasDatosSVG {
+
+    /**
+     * Clase auxiliar para dibujar las graficas.
+     */
+	private class VerticeCoordenada implements Comparable<VerticeCoordenada> {
+		
+		VerticeGrafica<Palabra> vertice;
+		double x;
+		double y;
+
+		/**
+	     * Crea el vertice coordenada a partir de un vertice y sus coordenadas.
+	     * @param vertice VerticeGrafica
+	     * @param x Coordenada x
+	     * @param y Coordenada y
+	     */
+		public VerticeCoordenada(VerticeGrafica<Palabra> vertice, double x, double y) {
+			this.vertice = vertice;
+			this.x = x;
+			this.y = y;
+		}
+
+		/**
+	     * Compara entre dos VerticeCoordenada.
+	     */
+		@Override public int compareTo(VerticeCoordenada vc) {
+			return this.vertice.getElemento().compareTo(vc.vertice.getElemento());
+		}
+
+		/*
+		 * Compara dos VerticeCoordeanda si son iguales
+		 */
+		public boolean equals(VerticeCoordenada vc) {
+            return vc.vertice.getElemento().equals(this.vertice.getElemento());
+        }
+	}
 
 	private SVGUtils utils;
 	private final String xml;
@@ -24,11 +60,11 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 	 * @param arbol_a para saber que tipo de arbol es.
 	 * @return el ArbolBinario en svg.
 	 */
-	public String arbolBinario (ArbolBinario<O> ab, EstructurasDeDatos arbol_a) {
+	public String arbolBinario (ArbolBinario<Palabra> ab, EstructurasDeDatos arbol_a) {
 		int padding = 15, largoSVG, altoSVG, radio;
 		int iniX, iniY;
 		String arbol;
-		VerticeArbolBinario<O> max;
+		VerticeArbolBinario<Palabra> max;
 
 		if (ab.esVacio()) {
 			return xml;
@@ -46,6 +82,31 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 
 		arbol = this.obtenerVertices(ab.raiz(), radio, largoSVG/2, iniX, iniY, arbol_a);
 		return xml + "<svg width='"+ largoSVG +"' height='"+ altoSVG +"'>" + arbol + "</svg>";
+	}
+
+    /**
+	 * Realiza el svg de una Grafica.
+	 * @param g Grafica de Integers.
+	 * @return la Grafica en svg.
+	 */
+	public String grafica (Grafica<Palabra> g) {
+		String grafica;
+		int padding = 15, radio;
+		int perimetro;
+        String max;
+		double radioG;
+		double largoSVG, altoSVG;
+
+		max = this.obtenerMaximo(g);
+
+		radio = (this.longitudString(max)*5+padding*2)/2;
+		perimetro = g.getElementos()*radio*3;
+		radioG = perimetro / 3.1416;
+
+		largoSVG = altoSVG = radioG*2 + radio*2.0*2.0;
+
+		grafica = this.obtenerVertices(g, radioG, radio, largoSVG/2, altoSVG/2);
+		return xml + "<svg width='"+ largoSVG +"' height='"+ altoSVG +"'>" + grafica + "</svg>";
 	}
 
 	/**
@@ -76,8 +137,8 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 	 * @param vertice donde inicia.
 	 * @return el VerticeArbolBinario maximo.
 	 */
-	private VerticeArbolBinario<O> obtenerMaximo(VerticeArbolBinario<O> vertice) {
-		VerticeArbolBinario<O> izq = null, der = null, max;
+	private VerticeArbolBinario<Palabra> obtenerMaximo(VerticeArbolBinario<Palabra> vertice) {
+		VerticeArbolBinario<Palabra> izq = null, der = null, max;
 		if (vertice == null) {
 			return null;
 		}
@@ -105,13 +166,32 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 		return ((longitudString(vertice.get().toString()) >= longitudString(max.get().toString()))? vertice : max);
 	}
 
+    /**
+	 * Auxiliar de grafica. Trae el numero mas grande de la grafica.
+	 * @param g Grafica.
+	 * @return palabra de mayor longitud en la Grafica.
+	 */
+	private String obtenerMaximo (Grafica<Palabra> g) {
+		String max = "";
+		for (Palabra i:g) {
+			max = i.getPalabra();
+			break;
+		}
+		for (Palabra i: g) {
+			if (longitudString(max) < longitudString(i.getPalabra())) {
+				max = i.getPalabra();
+			}
+		}
+		return max;
+	}
+
 	/**
 	 * Auxiliar de arbolBinario. Trae la longitud del SVG.
 	 * @param ab ArbolBinario.
 	 * @param radio de los vertices.
 	 * @return longitud del SVG.
 	 */
-	private int obtenerLongitudSVGArbol (ArbolBinario<O> ab, int radio) {
+	private int obtenerLongitudSVGArbol (ArbolBinario<Palabra> ab, int radio) {
 		int numeroHojas = (int) Math.pow(2,ab.profundidad());
 		return (numeroHojas+(numeroHojas/2)+2)*(radio*2);
 	}
@@ -122,7 +202,7 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 	 * @param radio de los vertices.
 	 * @return altura del SVG.
 	 */
-	private int obtenerAlturaSVGArbol (ArbolBinario<O> ab, int radio) {
+	private int obtenerAlturaSVGArbol (ArbolBinario<Palabra> ab, int radio) {
 		return (ab.profundidad()+3)*(radio*2);
 	}
 
@@ -136,7 +216,7 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 	 * @param arbol_a para saber que tipo de arbol es.
 	 * @return SVG de los vertices.
 	 */
-	private String obtenerVertices (VerticeArbolBinario<O> vertice, int radio, int i, int x, int y, EstructurasDeDatos arbol_a) {
+	private String obtenerVertices (VerticeArbolBinario<Palabra> vertice, int radio, int i, int x, int y, EstructurasDeDatos arbol_a) {
 		String arbol = "", color = "white", colorLetra = "black";
 		i /= 2;
 		// Recusivamente obteniendo los sub-arboles izquierdo y derecho.
@@ -164,5 +244,52 @@ public class EstructurasDatosSVG<O extends Comparable<O>> {
 			arbol += utils.texto(vertice.toString().split(" ")[1], x+radio, y-(radio/2), "text-anchor='middle'");
 		}
 		return arbol;
+	}
+
+    /**
+	 * Auxiliar de Grafica. Trae SVG con los vertices y aristas de la grafica.
+	 * @param g Grafica.
+	 * @param radioG de la circunferencia donde van los vertices.
+	 * @param radio de los vertices.
+	 * @param x la coordenada x.
+	 * @param y la coordenada y.
+	 * @return SVG de los vertices y aristas.
+	 */
+	private String obtenerVertices (Grafica<Palabra> g, double radioG, int radio, double x, double y)  {
+		String vertices = "", aristas = "", color = "white", colorLetra = "black";
+		double angulo = Math.toRadians(360 / g.getElementos());
+		double anguloi = 0, xi, yi;
+		int i = 0;
+		VerticeCoordenada coordenadai;
+		VerticeGrafica<Palabra> vi = null;
+		VerticeCoordenada[] coordenadas = new VerticeCoordenada[g.getElementos()];
+		Arreglos arr = new Arreglos();
+
+		// Obteniendo Vertices y asignarles una coordenada.
+		for (Palabra v: g) {
+			xi = radioG*Math.cos(anguloi);
+			yi = radioG*Math.sin(anguloi);
+			vertices += utils.circuloConTexto(v.getPalabra(), x+xi, y+yi, radio, color, colorLetra);
+
+			vi = g.vertice(v);
+			coordenadai = new VerticeCoordenada(vi, x+xi, y+yi);
+			coordenadas[i] = coordenadai;
+
+			anguloi += angulo;
+			i += 1;
+		}
+
+
+		// Obteniendo aristas.
+		arr.quickSort(coordenadas);
+		for (VerticeCoordenada v: coordenadas) {
+			for (VerticeGrafica<Palabra> vecino: v.vertice.vecinos()) {
+				coordenadai = new VerticeCoordenada(vecino, 0, 0);
+				coordenadai = coordenadas[arr.busquedaBinaria(coordenadas, coordenadai)];
+				aristas += utils.linea(v.x, v.y, coordenadai.x, coordenadai.y);
+			}
+		}
+
+		return aristas + vertices;
 	}
 }    

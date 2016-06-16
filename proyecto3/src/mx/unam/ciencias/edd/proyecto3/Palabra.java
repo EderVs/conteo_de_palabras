@@ -41,4 +41,8 @@ public class Palabra implements Comparable<Palabra> {
 	@Override public String toString() {
 		return palabra;
 	}
+
+    public boolean equals(Palabra p) {
+        return p.palabra.equals(this.palabra) && p.conteo == this.conteo;
+    }
 }

@@ -64,6 +64,11 @@ public class GeneradorHTMLArchivo {
 
         html += htmlUtil.getOpenTag("body");
         html += htmlUtil.getHeader("Archivo: " + archivo);
+        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("a", "href='index.html'");
+        html += "Regresar al index.";
+        html += htmlUtil.getCloseTag("a");
+        html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getOpenTag("section");
         // Conteo de las palabras.
         html += htmlUtil.getOpenTag("div");
