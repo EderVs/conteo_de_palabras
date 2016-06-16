@@ -6,7 +6,7 @@ import mx.unam.ciencias.edd.*;
   * Clase que sirve para llevar el HTML que
   * que se generará por archivo.
   **/
-public class GeneradorHTML {
+public class GeneradorHTMLArchivo {
     
     private String html;
     private HTMLUtil htmlUtil;
@@ -16,7 +16,7 @@ public class GeneradorHTML {
     private ArbolRojinegro<Palabra> palabras_rn;
     private ArbolAVL<Palabra> palabras_avl;
 
-    public GeneradorHTML(String archivo, Diccionario<String, Integer> palabras_dict) {
+    public GeneradorHTMLArchivo(String archivo, Diccionario<String, Integer> palabras_dict) {
         this.html = "";
         this.htmlUtil = new HTMLUtil();
         this.archivo = archivo;
@@ -50,68 +50,50 @@ public class GeneradorHTML {
         html += htmlUtil.getOpenTag("ol"); 
         for (Palabra palabra: palabras_orden) {
             html += htmlUtil.getOpenTag("li");
-            html += palabra;
+            html += palabra + ": " + palabra.getConteo();
             html += htmlUtil.getCloseTag("li");
         }
         html += htmlUtil.getCloseTag("ol");
     }
 
-    private double[] getCoordenadas(double cx, double cy, double radio, double angulo) {
-        double[] coordenadas = new double[2];
-        angulo = Math.toRadians(angulo);
-        coordenadas[0] = cx + radio * Math.cos(angulo);
-        coordenadas[1] = cy + radio * Math.sin(angulo);
-        return coordenadas;
-    }
-
-    private String getPedazo(double angulo1, double angulo2, double cx, double cy, double radio, String color) {
-        SVGUtils svgUtil = new SVGUtils();
-        double[] co1 = getCoordenadas(cx, cy, radio, angulo1);
-        double[] co2 = getCoordenadas(cx, cy, radio, angulo2);
-        String svg = "";
-        String extra = "stroke='#fff' stroke-width='2'";
-        svg += svgUtil.path(co1[0], co1[1], co2[0], co2[1], cx, cy, radio, color, extra);
-        return svg;
-    }
-
-    private void generarPastel() {
-        int total = 0;
-        double cx = 250, cy = 250, radio = 250;
-        double porcentaje, angulo, anguloi = 0, angulof = 0;
-        int i = 0;
-        html += "<svg width='500' height='500'>";
-        String[] colores = {"#2E64FE","#B40404","#088A08","#DBA901","#7401DF","#424242","#E3F6CE","#FF4000","#04B4AE","#2A0A12","#D8D8D8","#151515","#01DF74","#0B2161","#3ADF00"};
-        for (Palabra palabra: palabras_rn)
-            total += palabra.getConteo();
-        //html += "<path d='M130, 120 L230,120 A100,100 0 0, 1 49.09830056250526,178.77852522924732 z' fill='#0140CA' stroke='#fff' stroke-width='2'></path>";
-        System.out.println("hola");
-        for (Palabra palabra: palabras_rn) {
-            porcentaje = palabra.getConteo() * 100 / total;
-            angulo = porcentaje*360/100;
-            System.out.println("porcentaje:" + porcentaje + "-angulo:" + angulo);
-            anguloi = angulof;
-            angulof = angulof + angulo;
-            html += getPedazo(anguloi, angulof, cx, cy, radio, colores[i]);
-            i++;
-        }
-        html += "</svg>";
-    }
-
     private void generarBody() {
         EstructurasDatosSVG edSVG = new EstructurasDatosSVG();
+        PastelSVG<ArbolRojinegro<Palabra>> pastel = new PastelSVG<ArbolRojinegro<Palabra>>();
+        String[] colores = {"#2E64FE","#B40404","#088A08","#DBA901","#7401DF","#424242","#E3F6CE","#FF4000","#04B4AE","#2A0A12","#D8D8D8","#151515","#01DF74","#0B2161","#3ADF00"};
+        int i = 0;
 
         html += htmlUtil.getOpenTag("body");
         html += htmlUtil.getHeader("Archivo: " + archivo);
         html += htmlUtil.getOpenTag("section");
+        // Conteo de las palabras.
         html += htmlUtil.getOpenTag("div");
         getConteoDePalabras();
         html += htmlUtil.getCloseTag("div");
+        // Pastel
         html += htmlUtil.getOpenTag("div");
-        generarPastel();
+        html += htmlUtil.getOpenTag("div");
+        html += pastel.generarPastel(250, 250, 250, palabras_rn, colores);
         html += htmlUtil.getCloseTag("div");
+        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("ul", "style='list-style: none;'");
+        for (Palabra palabra: palabras_rn) {    
+            html += htmlUtil.getOpenTag("li");
+            html += htmlUtil.getOpenTag("div", "style='background-color:"+ colores[i] +"; display:inline'") + "&nbsp&nbsp&nbsp&nbsp";
+            html += htmlUtil.getCloseTag("div");
+            html += htmlUtil.getOpenTag("span", "style='color:#000;'");
+            html += palabra;
+            html += htmlUtil.getCloseTag("span");
+            html += htmlUtil.getCloseTag("li" );
+            i++;
+        }
+        html += htmlUtil.getCloseTag("ul");
+        html += htmlUtil.getCloseTag("div");
+        html += htmlUtil.getCloseTag("div");
+        // Arbol Rojinegro
         html += htmlUtil.getOpenTag("div");
         html += edSVG.arbolBinario(palabras_rn, EstructurasDeDatos.ArbolRojinegro);
         html += htmlUtil.getCloseTag("div");
+        // Arbol AVL
         html += htmlUtil.getOpenTag("div");
         html += edSVG.arbolBinario(palabras_avl, EstructurasDeDatos.ArbolAVL);
         html += htmlUtil.getCloseTag("div");

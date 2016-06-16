@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 
 
 /**
@@ -32,7 +34,7 @@ public class Proyecto3 {
         Lista<String> archivos = new Lista<String>();
         String linea_actual, texto, directorio = null;
         String[] palabras_actual;
-        GeneradorHTML generador;
+        GeneradorHTMLArchivo generador;
         File archivo_actual;
 
         // Separa los archivos del directorio
@@ -71,7 +73,7 @@ public class Proyecto3 {
                 palabras = archivos_palabras.get(archivo);
 
                 while ((linea_actual = br.readLine()) != null) {
-                    palabras_actual = linea_actual.replaceAll("[*\\p{L}\\p{Nd}]-", " ").split(" ");
+                    palabras_actual = Normalizer.normalize(linea_actual, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").replaceAll("[*\\p{L}\\p{Nd}]-", " ").replaceAll("\\p{Punct}","").toLowerCase().split(" ");
                     for (String palabra: palabras_actual) { 
                         if (palabras.contiene(palabra)) {
                             palabras.agrega(palabra, palabras.get(palabra) + 1);
@@ -84,7 +86,7 @@ public class Proyecto3 {
                 try {
                     archivo_actual = new File(directorio + "/" + archivo + ".html");
                     bw = new BufferedWriter(new FileWriter(archivo_actual));
-                    generador = new GeneradorHTML(archivo, palabras);
+                    generador = new GeneradorHTMLArchivo(archivo, palabras);
                     generador.generarHTML();
                     bw.write(generador.getHTML());
                     bw.close();

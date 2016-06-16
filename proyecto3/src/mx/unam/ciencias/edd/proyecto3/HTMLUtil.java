@@ -28,11 +28,19 @@ public class HTMLUtil {
         return "<header>" + header  + "</header>";
     }
 
+    public String getOpenTag(String tag, String extra) {
+        return "<" + tag + " " + extra + " >";
+    }
+
     public String getOpenTag(String tag) {
         return "<" + tag + ">";
     }
 
     public String getCloseTag(String tag) {
         return "</" + tag + ">";
+    }
+
+    public String getCSS(String css) {
+        return "<style type='text/css'>" + css + "</style>";
     }
 }

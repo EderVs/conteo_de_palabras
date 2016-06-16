@@ -1,0 +1,3 @@
+En teoría de grafos, un grafo plano (o planar según referencias) es un grafo que puede ser dibujado en el plano sin que ninguna arista se cruce (una definición más formal puede ser que este grafo pueda ser "incrustado" en un plano). Los grafos K5 y el K3,3 son los grafos no planos minimales, lo cual nos permitirán caracterizar el resto de los grafos no planos.
+
+Todo grafo plano puede ser dibujado sobre la esfera, y viceversa. Una generalización de los grafos planos son grafos dibujados e incrustados sobre superficies de genero arbitrario. En esta terminología, los grafos planos tienen genero 0, por ser el plano y la esfera de género 0
