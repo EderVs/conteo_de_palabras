@@ -107,6 +107,16 @@ public class Proyecto3 {
                     System.exit(1);
                 }
             }
-        } 
+        }
+        try {
+            archivo_actual = new File(directorio + "/index.html");
+            bw = new BufferedWriter(new FileWriter(archivo_actual));
+            GeneradorHTMLIndex generadorI = new GeneradorHTMLIndex(archivos_palabras, directorio);
+            generadorI.generarHTML();
+            bw.write(generadorI.getHTML());
+            bw.close();
+        } catch (IOException e) {
+            System.out.println("Sucedio un error al momento de crear el index");
+        }
     }
 }
