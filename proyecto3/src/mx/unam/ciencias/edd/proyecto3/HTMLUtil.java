@@ -20,12 +20,17 @@ public class HTMLUtil {
         return "<head><meta charset='UTF-8'>" + getTitle(titulo) + "</head>";
     }
 
+    public String getHead(String titulo, String css) {
+        return "<head><meta charset='UTF-8'>" + getCSS(css) + getTitle(titulo) + "</head>";
+
+    }
+
     public String getP(String texto) {
         return "<p>" + texto + "</p>";
     }
 
     public String getHeader(String header) {
-        return "<header>" + header  + "</header>";
+        return "<header><h1>" + header  + "</h1></header>";
     }
 
     public String getOpenTag(String tag, String extra) {
@@ -41,6 +46,6 @@ public class HTMLUtil {
     }
 
     public String getCSS(String css) {
-        return "<style type='text/css'>" + css + "</style>";
+        return "<link rel='stylesheet' type='text/css' href='"+css+"'>";
     }
 }

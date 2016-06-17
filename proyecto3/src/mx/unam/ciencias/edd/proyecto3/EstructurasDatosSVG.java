@@ -12,7 +12,7 @@ public class EstructurasDatosSVG {
      */
 	private class VerticeCoordenada implements Comparable<VerticeCoordenada> {
 		
-		VerticeGrafica<Palabra> vertice;
+		VerticeGrafica<String> vertice;
 		double x;
 		double y;
 
@@ -22,7 +22,7 @@ public class EstructurasDatosSVG {
 	     * @param x Coordenada x
 	     * @param y Coordenada y
 	     */
-		public VerticeCoordenada(VerticeGrafica<Palabra> vertice, double x, double y) {
+		public VerticeCoordenada(VerticeGrafica<String> vertice, double x, double y) {
 			this.vertice = vertice;
 			this.x = x;
 			this.y = y;
@@ -61,7 +61,7 @@ public class EstructurasDatosSVG {
 	 * @return el ArbolBinario en svg.
 	 */
 	public String arbolBinario (ArbolBinario<Palabra> ab, EstructurasDeDatos arbol_a) {
-		int padding = 15, largoSVG, altoSVG, radio;
+		int padding = 4, largoSVG, altoSVG, radio;
 		int iniX, iniY;
 		String arbol;
 		VerticeArbolBinario<Palabra> max;
@@ -89,9 +89,9 @@ public class EstructurasDatosSVG {
 	 * @param g Grafica de Integers.
 	 * @return la Grafica en svg.
 	 */
-	public String grafica (Grafica<Palabra> g) {
+	public String grafica (Grafica<String> g) {
 		String grafica;
-		int padding = 15, radio;
+		int padding = 5, radio;
 		int perimetro;
         String max;
 		double radioG;
@@ -171,15 +171,15 @@ public class EstructurasDatosSVG {
 	 * @param g Grafica.
 	 * @return palabra de mayor longitud en la Grafica.
 	 */
-	private String obtenerMaximo (Grafica<Palabra> g) {
+	private String obtenerMaximo (Grafica<String> g) {
 		String max = "";
-		for (Palabra i:g) {
-			max = i.getPalabra();
+		for (String i:g) {
+			max = i;
 			break;
 		}
-		for (Palabra i: g) {
-			if (longitudString(max) < longitudString(i.getPalabra())) {
-				max = i.getPalabra();
+		for (String i: g) {
+			if (longitudString(max) < longitudString(i)) {
+				max = i;
 			}
 		}
 		return max;
@@ -193,7 +193,7 @@ public class EstructurasDatosSVG {
 	 */
 	private int obtenerLongitudSVGArbol (ArbolBinario<Palabra> ab, int radio) {
 		int numeroHojas = (int) Math.pow(2,ab.profundidad());
-		return (numeroHojas+(numeroHojas/2)+2)*(radio*2);
+		return (numeroHojas+(numeroHojas/16)+2)*(radio*2);
 	}
 
 	/**
@@ -255,21 +255,21 @@ public class EstructurasDatosSVG {
 	 * @param y la coordenada y.
 	 * @return SVG de los vertices y aristas.
 	 */
-	private String obtenerVertices (Grafica<Palabra> g, double radioG, int radio, double x, double y)  {
+	private String obtenerVertices (Grafica<String> g, double radioG, int radio, double x, double y)  {
 		String vertices = "", aristas = "", color = "white", colorLetra = "black";
 		double angulo = Math.toRadians(360 / g.getElementos());
 		double anguloi = 0, xi, yi;
 		int i = 0;
 		VerticeCoordenada coordenadai;
-		VerticeGrafica<Palabra> vi = null;
+		VerticeGrafica<String> vi = null;
 		VerticeCoordenada[] coordenadas = new VerticeCoordenada[g.getElementos()];
 		Arreglos arr = new Arreglos();
 
 		// Obteniendo Vertices y asignarles una coordenada.
-		for (Palabra v: g) {
+		for (String v: g) {
 			xi = radioG*Math.cos(anguloi);
 			yi = radioG*Math.sin(anguloi);
-			vertices += utils.circuloConTexto(v.getPalabra(), x+xi, y+yi, radio, color, colorLetra);
+			vertices += utils.circuloConTexto(v, x+xi, y+yi, radio, color, colorLetra);
 
 			vi = g.vertice(v);
 			coordenadai = new VerticeCoordenada(vi, x+xi, y+yi);
@@ -283,7 +283,7 @@ public class EstructurasDatosSVG {
 		// Obteniendo aristas.
 		arr.quickSort(coordenadas);
 		for (VerticeCoordenada v: coordenadas) {
-			for (VerticeGrafica<Palabra> vecino: v.vertice.vecinos()) {
+			for (VerticeGrafica<String> vecino: v.vertice.vecinos()) {
 				coordenadai = new VerticeCoordenada(vecino, 0, 0);
 				coordenadai = coordenadas[arr.busquedaBinaria(coordenadas, coordenadai)];
 				aristas += utils.linea(v.x, v.y, coordenadai.x, coordenadai.y);

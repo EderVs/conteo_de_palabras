@@ -34,31 +34,87 @@ public class GeneradorHTMLArchivo {
         palabras_orden = Lista.mergeSort(palabras_orden).reversa();
     }
 
+    private Lista<Palabra> desordenarLista(Lista<Palabra> l) {
+        boolean b = false;
+        Lista<Palabra> aux = new Lista<Palabra>();
+        for (Palabra palabra: l) {
+            if (b)
+                aux.agrega(palabra);
+            else
+                aux.agregaInicio(palabra);
+            b = !b;
+        }
+        return aux;
+    }
+
     private void getArbolesDePalabras() {
         int i = 0;
+        Lista<Palabra> aux = new Lista<Palabra>();
         for (Palabra palabra: palabras_orden) {
             if (i >= 15) {
                 break;    
             }
-            palabras_rn.agrega(palabra);
-            palabras_avl.agrega(palabra);
+            aux.agrega(palabra);
             i++;
-        }  
+        }
+        aux = desordenarLista(aux);
+        for (Palabra palabra: aux) {
+            palabras_rn.agrega(palabra);
+            palabras_avl.agrega(palabra);  
+        }
     }
 
     private void getConteoDePalabras() {
         html += htmlUtil.getOpenTag("ol"); 
         for (Palabra palabra: palabras_orden) {
             html += htmlUtil.getOpenTag("li");
-            html += palabra + ": " + palabra.getConteo();
+            html += htmlUtil.getOpenTag("span");
+            html += palabra;
+            html += htmlUtil.getCloseTag("span");
+            html += ": " + palabra.getConteo();
             html += htmlUtil.getCloseTag("li");
         }
         html += htmlUtil.getCloseTag("ol");
     }
 
+    private void generarCSS() {
+       /* header {
+    height: 100%;
+    display: inline-block;
+    margin: 0;
+    padding: 20px;
+    color: #263238;
+}
+
+li span {
+    font-weight: bold;
+}
+
+#pastel div {
+    display: inline-block;
+}
+
+#pastel span {
+    margin-left: 5px;    
+}
+
+#pastel, #arbolRojinegro, #arbolAVL {
+    margin: 0 auto;
+    width: 1000px;
+}*/
+        html += htmlUtil.getOpenTag("style");
+        html += "header{height:100%;display:inline-block;margin:0;padding:20px;color:#263238}";
+        html += "\nli span{font-weight:bold}";
+        html += "\n#pastel div{display: inline-block;}";
+        html += "\n#pastel span{margin-left: 5px;}";
+        html += "\n#pastel, #arbolRojinegro, #arbolAVL{margin:0 auto;width: 1000px;}";
+        html += htmlUtil.getCloseTag("style");
+    }
+
     private void generarBody() {
         EstructurasDatosSVG edSVG = new EstructurasDatosSVG();
         PastelSVG<ArbolRojinegro<Palabra>> pastel = new PastelSVG<ArbolRojinegro<Palabra>>();
+        SVGUtils svgUtils = new SVGUtils();
         String[] colores = {"#2E64FE","#B40404","#088A08","#DBA901","#7401DF","#424242","#E3F6CE","#FF4000","#04B4AE","#2A0A12","#D8D8D8","#151515","#01DF74","#0B2161","#3ADF00"};
         int i = 0;
 
@@ -71,20 +127,20 @@ public class GeneradorHTMLArchivo {
         html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getOpenTag("section");
         // Conteo de las palabras.
-        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("div", "id='palabras'");
         getConteoDePalabras();
         html += htmlUtil.getCloseTag("div");
+        html += htmlUtil.getOpenTag("div", "id='dibujos'");
         // Pastel
-        html += htmlUtil.getOpenTag("div");
-        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("div", "id='pastel'");
+        html += htmlUtil.getOpenTag("div", "id='pastel_p'");
         html += pastel.generarPastel(250, 250, 250, palabras_rn, colores);
         html += htmlUtil.getCloseTag("div");
-        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("div", "id='pastel_palabras'");
         html += htmlUtil.getOpenTag("ul", "style='list-style: none;'");
         for (Palabra palabra: palabras_rn) {    
             html += htmlUtil.getOpenTag("li");
-            html += htmlUtil.getOpenTag("div", "style='background-color:"+ colores[i] +"; display:inline'") + "&nbsp&nbsp&nbsp&nbsp";
-            html += htmlUtil.getCloseTag("div");
+            html += "<svg class='rectangulo' width='16' height='16'>"+ svgUtils.rectangulo(16, 16, 0, 0, "fill='"+ colores[i] +"'") +"</svg>";
             html += htmlUtil.getOpenTag("span", "style='color:#000;'");
             html += palabra;
             html += htmlUtil.getCloseTag("span");
@@ -95,12 +151,13 @@ public class GeneradorHTMLArchivo {
         html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getCloseTag("div");
         // Arbol Rojinegro
-        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("div", "id='arbolRojinegro'");
         html += edSVG.arbolBinario(palabras_rn, EstructurasDeDatos.ArbolRojinegro);
         html += htmlUtil.getCloseTag("div");
         // Arbol AVL
-        html += htmlUtil.getOpenTag("div");
+        html += htmlUtil.getOpenTag("div", "id='arbolAVL'");
         html += edSVG.arbolBinario(palabras_avl, EstructurasDeDatos.ArbolAVL);
+        html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getCloseTag("div");
         html += htmlUtil.getCloseTag("section");
         html += htmlUtil.getCloseTag("body");
@@ -110,6 +167,7 @@ public class GeneradorHTMLArchivo {
         html += htmlUtil.getDoctypeHTML();
         html += htmlUtil.getOpenTag("html");
         html += htmlUtil.getHead("Página de " + archivo);
+        generarCSS();
         generarBody();
         html += htmlUtil.getCloseTag("html");
     }

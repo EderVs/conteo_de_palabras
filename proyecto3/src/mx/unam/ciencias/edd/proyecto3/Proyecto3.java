@@ -22,11 +22,11 @@ import java.text.Normalizer.Form;
 public class Proyecto3 {
 
     public static void mostrarError(String error) {
-        System.out.println(error);
-        System.exit(1);
+        System.err.println(error);
+        System.exit(-1);
     }
 
-    public static void main(String[] args) {
+    public static void proyecto3(String[] args) throws ExcepcionDirectorioNoValido, ExcepcionArchivoNoValido, IOException {
         BufferedReader br = null;
         BufferedWriter bw = null;
         Diccionario<String, Diccionario<String, Integer>> archivos_palabras;
@@ -36,6 +36,7 @@ public class Proyecto3 {
         String[] palabras_actual;
         GeneradorHTMLArchivo generador;
         File archivo_actual;
+        Grafica<String> archivos_g = new Grafica<String>();
 
         // Separa los archivos del directorio
         for (int i = 0; i < args.length; i++) {
@@ -44,22 +45,32 @@ public class Proyecto3 {
                     directorio = args[++i];
                 } 
             } else {
+                archivo_actual = new File(args[i]);
+                try {
+                    archivos_g.agrega(archivo_actual.getName());
+                } catch (IllegalArgumentException e) {
+                    mostrarError("Hay dos archivos que se llaman igual.");
+                }
                 archivos.agrega(args[i]);
             }
         }
  
         // Validando que fue agregado un directorio donde poner los archivos.
         if (directorio == null) {
-            mostrarError("No fue agregado un directorio de destino");
+            throw new ExcepcionDirectorioNoValido("No fue agregado un directorio de destino");
         }
         // Validando que el directorio existe
         File directorio_file = new File(directorio); 
         if (!directorio_file.exists()) {
-            mostrarError("El directorio '"+ directorio +"' no existe");
+            throw new ExcepcionDirectorioNoValido("El directorio '"+ directorio +"' no existe");
+        }
+        //Verificando que el directorio es un directorio
+        if (!directorio_file.isDirectory()) {
+            throw new ExcepcionDirectorioNoValido(directorio + " no es un directorio.");
         }
         // Validando que fueron agregados archivos donde leer palabras.
         if (archivos.esVacio()) {
-            mostrarError("No fueron agregados archivos donde leer palabras");
+            throw new ExcepcionArchivoNoValido("No fueron agregados archivos donde leer palabras");
         }
 
         // Creando el diccionario que va a guardar las palabras y su conteo por archivos.
@@ -84,27 +95,27 @@ public class Proyecto3 {
                 }
                 // Generando el archivo html
                 try {
-                    archivo_actual = new File(directorio + "/" + archivo + ".html");
+                    archivo_actual = new File(archivo);
+                    archivo_actual = new File(directorio + "/" + archivo_actual.getName() + ".html");
                     bw = new BufferedWriter(new FileWriter(archivo_actual));
                     generador = new GeneradorHTMLArchivo(archivo, palabras);
                     generador.generarHTML();
                     bw.write(generador.getHTML());
                     bw.close();
                 } catch (IOException e) {
-                   System.out.println("Sucedio un error al momento de crear el archivo" + archivo + ".html");
+                    throw new IOException("Sucedio un error al momento de crear el archivo" + archivo + ".html");
                 }
 
             } catch (IOException e) {
-                System.out.println("El archivo '" + archivo + "' no existe");
-                System.exit(1);
+                System.out.println(e);
+                throw new ExcepcionArchivoNoValido(e.getMessage());
             } finally {
                 try {
                     if (br != null) {
                         br.close();
                     }
                 } catch (IOException ex) {
-                    System.out.println("Hubo un problema con el archivo " + archivo);
-                    System.exit(1);
+                    throw new ExcepcionArchivoNoValido("Hubo un problema con el archivo " + archivo);
                 }
             }
         }
@@ -116,7 +127,15 @@ public class Proyecto3 {
             bw.write(generadorI.getHTML());
             bw.close();
         } catch (IOException e) {
-            System.out.println("Sucedio un error al momento de crear el index");
+            throw new IOException("Sucedio un error al momento de crear el index");
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            proyecto3(args);
+        } catch (IOException | ExcepcionArchivoNoValido | ExcepcionDirectorioNoValido e) {
+            mostrarError(e.getMessage());
         }
     }
 }

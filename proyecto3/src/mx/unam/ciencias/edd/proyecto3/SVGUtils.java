@@ -18,7 +18,7 @@ public class SVGUtils {
 
 	/* textos */
 	public String texto (String texto, double x, double y, String extra) {
-		return "<text x='"+ x +"' y='"+ y +"' font-size='20' "+ extra +">"+ texto +"</text>";
+		return "<text x='"+ x +"' y='"+ y +"' font-size='12' "+ extra +">"+ texto +"</text>";
 	}
 
 	public String numero (int n, double x, double y, String extra) {
@@ -29,6 +29,10 @@ public class SVGUtils {
 	public String rectangulo (double base, double altura, double x, double y) {
 		return "<rect x='"+ x +"' y='"+ y +"' width='"+ base +"' height='"+ altura +"' stroke='black' stroke-width='1' fill='white'/>";
 	}
+
+    public String rectangulo (double base, double altura, double x, double y, String extra) {
+        return "<rect x='"+ x +"' y='"+ y +"' width='"+ base +"' height='"+ altura +"' stroke='black' stroke-width='1' "+extra+"/>";
+    }
 
 	public String circulo (double radio, double x, double y, String color) {
 		String color_s = "";
