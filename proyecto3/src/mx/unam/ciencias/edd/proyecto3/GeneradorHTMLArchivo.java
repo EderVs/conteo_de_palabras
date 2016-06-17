@@ -78,30 +78,6 @@ public class GeneradorHTMLArchivo {
     }
 
     private void generarCSS() {
-       /* header {
-    height: 100%;
-    display: inline-block;
-    margin: 0;
-    padding: 20px;
-    color: #263238;
-}
-
-li span {
-    font-weight: bold;
-}
-
-#pastel div {
-    display: inline-block;
-}
-
-#pastel span {
-    margin-left: 5px;    
-}
-
-#pastel, #arbolRojinegro, #arbolAVL {
-    margin: 0 auto;
-    width: 1000px;
-}*/
         html += htmlUtil.getOpenTag("style");
         html += "header{height:100%;display:inline-block;margin:0;padding:20px;color:#263238}";
         html += "\nli span{font-weight:bold}";
