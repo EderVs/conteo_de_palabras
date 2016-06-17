@@ -15,6 +15,7 @@ public class GeneradorHTMLArchivo {
     private Lista<Palabra> palabras_orden;
     private ArbolRojinegro<Palabra> palabras_rn;
     private ArbolAVL<Palabra> palabras_avl;
+    private int total_palabras;
 
     public GeneradorHTMLArchivo(String archivo, Diccionario<String, Integer> palabras_dict) {
         this.html = "";
@@ -24,13 +25,16 @@ public class GeneradorHTMLArchivo {
         this.palabras_rn = new ArbolRojinegro<Palabra>();
         this.palabras_avl = new ArbolAVL<Palabra>();
         this.palabras_orden = new Lista<Palabra>();
+        this.total_palabras = 0;
         this.getListaOrden();
-        this.getArbolesDePalabras();
+        this.getArbolesDePalabras(); 
     }
 
     private void getListaOrden() {
-        for (String llave: palabras_dict.llaves())
+        for (String llave: palabras_dict.llaves()) {
             palabras_orden.agrega(new Palabra(llave, palabras_dict.get(llave)));
+            total_palabras += palabras_dict.get(llave);
+        }
         palabras_orden = Lista.mergeSort(palabras_orden).reversa();
     }
 
@@ -118,7 +122,7 @@ public class GeneradorHTMLArchivo {
             html += htmlUtil.getOpenTag("li");
             html += "<svg class='rectangulo' width='16' height='16'>"+ svgUtils.rectangulo(16, 16, 0, 0, "fill='"+ colores[i] +"'") +"</svg>";
             html += htmlUtil.getOpenTag("span", "style='color:#000;'");
-            html += palabra;
+            html += palabra + ": " + String.format("%.2f" ,((palabra.getConteo() + 0.0)/total_palabras*100)) + "%";
             html += htmlUtil.getCloseTag("span");
             html += htmlUtil.getCloseTag("li" );
             i++;
